@@ -1,0 +1,23 @@
+[project]
+name = "bioplate"
+version = "0.1.0"
+description = "Streamlit + FastAPI boilerplate with modular LLM providers"
+authors = [
+    { name="Your Name", email="you@example.com" }
+]
+readme = "README.md"
+requires-python = ">=3.11"
+
+[project.dependencies]
+fastapi = ">=0.100.0"
+uvicorn = {extra = "standard", version = ">=0.22.0"}
+streamlit = ">=1.25.0"
+requests = ">=2.31.0"
+pydantic-settings = ">=2.1.1"
+python-dotenv = ">=1.1.0"
+openai = ">=1.8.0"
+anthropic = ">=2024.4.0"
+
+[tool.poetry.scripts]
+# if using poetry, you can define entry points here, e.g.:
+# start-api = "app.api.main:app"

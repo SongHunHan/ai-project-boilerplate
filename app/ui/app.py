@@ -1,7 +1,10 @@
-import streamlit as st
-import requests
+import os
 
-url = "http://localhost:8000/basic" 
+import requests
+import streamlit as st
+
+api_base_url = os.getenv("API_BASE_URL", "http://localhost:8000").rstrip("/")
+url = f"{api_base_url}/basic"
 
 st.title("KT front/back template chat")
 st.caption("🚀 A Streamlit chatbot")
@@ -39,7 +42,7 @@ if prompt := st.chat_input():
     }
 
     try:
-        response = requests.post(url, json=payload)
+        response = requests.post(url, json=payload, timeout=60)
         
         if response.status_code == 200:
             result_data = response.json()

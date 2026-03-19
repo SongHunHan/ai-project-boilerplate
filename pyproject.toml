@@ -17,6 +17,7 @@ pydantic-settings = ">=2.1.1"
 python-dotenv = ">=1.1.0"
 openai = ">=1.8.0"
 anthropic = ">=2024.4.0"
+langgraph = ">=0.2.0"
 
 [tool.poetry.scripts]
 # if using poetry, you can define entry points here, e.g.:

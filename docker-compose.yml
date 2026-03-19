@@ -5,25 +5,38 @@ services:
     command: uvicorn app.api.main:app --host 0.0.0.0 --port 8000 --reload
     env_file:
       - ${BIOPLATE_ENV_FILE:-.env}
-    environment:
-      PYTHONPATH: /app
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
+      - ./app/__init__.py:/app/app/__init__.py
+      - ./app/api:/app/app/api
+      - ./src:/app/src
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/health').read()",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   ui:
     build:
       context: .
-    command: streamlit run app/ui/app.py --server.address=0.0.0.0 --server.port=8501
+      dockerfile: Dockerfile.ui
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     env_file:
       - ${BIOPLATE_ENV_FILE:-.env}
     environment:
       API_BASE_URL: http://api:8000
-      PYTHONPATH: /app
     ports:
       - "8501:8501"
     volumes:
-      - .:/app
+      - ./app/__init__.py:/app/app/__init__.py
+      - ./app/ui:/app/app/ui

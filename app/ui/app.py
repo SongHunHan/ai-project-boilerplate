@@ -31,7 +31,6 @@ st.caption("🚀 A Streamlit chatbot")
 
 with st.sidebar:
     st.title("🤖 Model Settings")
-    st.caption(f"API 서버: {api_base_url}")
 
     model_name = st.selectbox(
         "사용할 모델을 선택하세요:",

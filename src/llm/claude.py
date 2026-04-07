@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from typing import Optional
 import anthropic
 
@@ -25,3 +26,16 @@ class ClaudeProvider:
 
         
         return f"[Claude stub:{model}] {message.content}"
+
+    def supports_stream(self, *, model: str) -> bool:
+        return False
+
+    def stream_generate(
+        self,
+        *,
+        message: str,
+        model: str,
+        system_prompt: Optional[str] = None,
+        **kwargs,
+    ) -> Iterator[str]:
+        raise NotImplementedError(f"Streaming is not supported for model '{model}'.")

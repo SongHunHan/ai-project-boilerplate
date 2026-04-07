@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from collections.abc import Iterator
 from typing import Any, Optional
 
 from langgraph.graph import END, START, StateGraph
@@ -59,6 +60,34 @@ class BasicLangGraphAgent:
             }
         )
         return final_state["response"]
+
+    def supports_stream(self, *, model: str) -> bool:
+        client = select_provider(model=model)
+        return client.supports_stream(model=model)
+
+    def stream_run(
+        self,
+        *,
+        message: str,
+        model: str,
+        system_prompt: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Iterator[str]:
+        prepared_state = self._prepare_input(
+            {
+                "message": message,
+                "model": model,
+                "system_prompt": system_prompt,
+                "kwargs": kwargs,
+            }
+        )
+        client = select_provider(model=model)
+        yield from client.stream_generate(
+            message=prepared_state["message"],
+            model=model,
+            system_prompt=prepared_state["system_prompt"],
+            **prepared_state.get("kwargs", {}),
+        )
 
     def _prepare_input(self, state: dict[str, Any]) -> dict[str, Any]:
         message = str(state["message"]).strip()

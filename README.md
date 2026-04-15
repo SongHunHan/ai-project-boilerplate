@@ -38,14 +38,35 @@ docker compose down
 - **FastAPI** (`app/api/`): `main.py`에 앱 등록, `routers/`에 라우트, `schemas/`에 Pydantic 모델.
 - **도메인·LLM** (`src/`): `engines/chat_service.py`가 생성 흐름을 오케스트레이션. 모델 문자열 분기는 `engines/llm_router.py`, 각 벤더/방식은 `src/llm/`의 Provider. LangGraph 등 에이전트 경로는 `src/agents/`와 `ChatService`의 분기와 맞출 것.
 - **실행**: `docker compose`로 API(8000)와 UI(8501)가 분리되어 있다. 로컬 Streamlit만 띄울 때는 기본으로 `http://localhost:8000`을 향한다.
-### 이번 프로젝트에서 할 일
-- 프로젝트명/목적: [예: 사내 문서 Q&A, 고객 지원 챗봇]
-- 주요 사용자 시나리오: [예: 파일 업로드 후 질문, 단순 멀티턴 채팅]
-- API 측면: [기존 `POST /basic` 유지 / 새 엔드포인트 추가 / 스키마 필드 추가 등 구체적으로]
-- UI 측면: [사이드바 옵션, 추가 페이지, 스트리밍 여부 등]
-- LLM/에이전트: [사용할 모델·Provider 규칙, LangGraph 사용 여부]
-### 구현 시 지침
-- 기존 폴더 역할을 존중하고, 변경은 요구사항에 필요한 최소 범위로만 한다.
-- 새 API는 Router → Schema → Service(또는 Provider) 순으로 추가한다.
-- README/환경변수 예시에 새로 필요한 키가 있으면 `.env.example`과 설명을 함께 갱신한다.
-위 구조를 전제로, [구체적 작업 목록]을 구현해 줘.
+
+# Task Instruction
+1. 사용자의 업로드 문서에서 데이터를 추출 (이미지, 표)등을 이상없이 LLM이 이해하기 좋은 형태로 추출해야함
+입력: 문서 (pdf등)
+출력:
+텍스트 (image, table등이 순차적으로 처리된 정보)
+목적:
+입력 문서 파싱
+참고사항:
+- 이미지 및 표 등을 LLM이 읽기 좋은 형태로 두기 위해 단순 PDF 파서보다 **Docling**을 활용한다.
+    - 현재는 아래 코드로 이미지를 제외한 표, 텍스트만 추출
+    """from docling.document_converter import DocumentConverter
+    source = "input document" 
+    converter = DocumentConverter()
+    result = converter.convert(source)
+    print(result.document.export_to_markdown())"""
+    
+    - **기본(빠름)**: `DocumentConverter()`만 쓰면 마크다운에 그림은 주로 `<!-- image -->` 플레이스홀더로 남고, 텍스트·표 중심이다.
+    - **그림 설명 포함(느림, 로컬 VLM)**: `PdfPipelineOptions(do_picture_description=True)`와 `PdfFormatOption`을 `format_options`로 넘기면 그림 영역에 설명(어노테이션)을 붙일 수 있다. 프로토타입은 루트의 `test.py`를 참고한다.
+
+
+세부 구현사항
+- ui 페이지에 sidebar에 문서 upload 구역 생성
+- 문서 upload시 관련 간단 정보 출력
+- sidebar에 image 파싱 처리 여부 체크 항목 만들기
+- 이미 파싱을 완료한 파일이 들어올 때 고려하여 ui 제작
+
+## 이번 작업의 범위 명확화
+- 이번 단계의 구현 범위는 문서 업로드, 문서 파싱 단계이다.
+- 이 작업이 끝나고 다른 기능을 추가 구현 예정이므로, 폴더 구조 명확하게 기능단위로 분리(in src)
+
+#README는 수정하지 말 것 
